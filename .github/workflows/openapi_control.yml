@@ -1,0 +1,36 @@
+name: OpenAPI/Swagger security check
+
+on:
+  # push:
+  #  branches:
+  #    - main
+  workflow_dispatch:
+    inputs:
+      PRISMA_API_URL:
+        description: 'Prisma Cloud API URL'
+        required: true
+        default: 'https://api0.prismacloud.io'
+
+jobs:
+  deploy:
+    name: OpenAPI/Swagger security check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: API Security controls check  - Checkov / Prisma Cloud
+        id: Prisma_Cloud
+        uses: bridgecrewio/checkov-action@master
+        env:
+          PRISMA_API_URL: ${{ github.event.inputs.PRISMA_API_URL }}
+        with:
+          api-key: ${{ secrets.PC_ACCESS_KEY }}::${{ secrets.PC_SECRET_KEY }}
+          quiet: true
+          use_enforcement_rules: true
+          framework: openapi
+          output_format: cli
+          directory: .
+          download_external_modules: false
+
+ 
